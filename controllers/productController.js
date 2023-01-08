@@ -8,11 +8,17 @@ const createProduct = async (req, res) => {
     try {
         const {name, category, price, description, quantity} = req.body
         let productPictures = []
-        const basePath = `${req.protocol}://${req.get('host')}/uploads/`
+        // const basePath = `${req.protocol}://${req.get('host')}/uploads/`
+        //
+        // if (req.files) {
+        //     req.files.map(file => {
+        //         productPictures.push(`${basePath}${file.filename}`)
+        //     })
+        // }
 
-        if (req.files) {
+        if (req.files.length > 0) {
             req.files.map(file => {
-                productPictures.push(`${basePath}${file.filename}`)
+                productPictures.push(file.location)
             })
         }
 
@@ -36,7 +42,8 @@ const createProduct = async (req, res) => {
             if (product) {
                 return res.status(201).json({
                     message: 'Product has been created!',
-                    product: product
+                    product: product,
+                    files: req.files
                 })
             }
         })
@@ -148,7 +155,11 @@ const updateProduct = async (req, res) => {
         if (!product) {
             return res.status(500).json({success: false, message: 'Product was not updated!'})
         }
-        res.status(200).json(product)
+        return res.status(201).json({
+            message: 'Product has been updated!',
+            product: product,
+            files: req.files
+        })
     } catch (error) {
         console.log(error)
         res.status(500).json({message: 'Something went wrong!', error: error.message})
